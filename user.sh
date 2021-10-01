@@ -16,3 +16,10 @@ else
 	echo "$USER:$PASSWORD" | chpasswd
 	chage -d 0 $USER
 fi
+
+sed -i 's/#Port 22/Port 7022/' /etc/ssh/sshd_config
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin/PermitRootLogin/' /etc/ssh/sshd_config
+sed -i 's/#AuthorizedKeysFile/AuthorizedKeysFile/' /etc/ssh/sshd_config
+sed -i 's/#PubkeyAuthentication/PubkeyAuthentication/' /etc/ssh/sshd_config
