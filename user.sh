@@ -1,7 +1,7 @@
 #!/bin/bash
-read -p "usuário: " USER
-read -p "senha: " PASSWORD
-read -p "pubkey: " PUBKEY
+read -p "Usuário: " USER
+read -p "Senha: " PASSWORD
+read -p "Pubkey: " PUBKEY
 getent passwd $USER > /dev/null 2&>1
 if [ $? -eq 0 ]; then
     echo "Usuário já criado"
