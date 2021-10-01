@@ -3,7 +3,7 @@ read USER
 read PASSWORD
 read HOME
 read PUBKEY
-getent passwd $1 > /dev/null 2&>1
+getent passwd $USER > /dev/null 2&>1
 if [ $? -eq 0 ]; then
     echo "Usuário já criado"
 else
