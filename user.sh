@@ -14,6 +14,6 @@ else
 	chown -R $USER:$USER /home/$USER/.ssh
 	find /home -iname "*ssh" -exec chmod 700 {} \;
 	find /home -iname "authorized_keys*" -exec chmod 600 {} \;
-	echo '$USER:$PASSWORD' | chpasswd
+	echo "$USER:$PASSWORD" | chpasswd
 	chage -d 0 $USER
 fi
