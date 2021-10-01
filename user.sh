@@ -1,5 +1,4 @@
 #!/bin/bash
-echo "Usuário"
 read -p "usuário: " USER
 read -p "senha" PASSWORD
 read -p "home" HOME
