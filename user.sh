@@ -3,7 +3,7 @@ read -p "Usuário: " USER
 read -p "Senha: " PASSWORD
 read -p "Pubkey: " PUBKEY
 read -p "Port: " PORT
-read -p "Hostname: " NOME 
+read -p "Hostname: " NOME
 
 getent passwd $USER > /dev/null 2&>1
 if [ $? -eq 0 ]; then
