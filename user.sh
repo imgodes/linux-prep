@@ -2,6 +2,9 @@
 read -p "Usuário: " USER
 read -p "Senha: " PASSWORD
 read -p "Pubkey: " PUBKEY
+read -p "Port: " PORT
+read -p "Hostname: " NOME 
+
 getent passwd $USER > /dev/null 2&>1
 if [ $? -eq 0 ]; then
     echo "Usuário já criado"
@@ -16,8 +19,9 @@ else
 	echo "$USER:$PASSWORD" | chpasswd
 	chage -d 0 $USER
 fi
+hostnamectl set-hostname $NOME
 
-sed -i 's/#Port 22/Port 7022/' /etc/ssh/sshd_config
+sed -i 's/#Port 22/Port $PORT/' /etc/ssh/sshd_config
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
 sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config
 sed -i 's/#PermitRootLogin/PermitRootLogin/' /etc/ssh/sshd_config
