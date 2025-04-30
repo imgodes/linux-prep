@@ -101,10 +101,6 @@ configure_firewall() {
     ufw default allow outgoing
     ufw allow from 127.0.0.1
     ufw allow $1/tcp
-    ufw allow 1514/udp   # Wazuh agent communication
-    ufw allow 1515/tcp   # Wazuh manager cluster
-    ufw allow 55000/tcp  # Wazuh DB daemon
-    ufw allow https
     ufw --force enable
     
     echo "Status do UFW:"
