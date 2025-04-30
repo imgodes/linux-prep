@@ -37,6 +37,14 @@ EOF
     chronyc tracking
 }
 
+# Configurar timezone para São Paulo
+configure_timezone() {
+    echo "Configurando timezone para America/Sao_Paulo..."
+    timedatectl set-timezone America/Sao_Paulo
+    echo "Timezone configurado:"
+    timedatectl | grep "Time zone"
+}
+
 # Hardening de Kernel e Rede
 configure_kernel_hardening() {
     echo "Aplicando hardening de kernel e rede..."
@@ -164,6 +172,7 @@ echo "Porta SSH: $PORT"
 echo "Acesso root via SSH: DESATIVADO"
 echo "Autenticação por senha: DESATIVADA"
 echo "NTP configurado com servidores públicos"
+echo "Timezone: America/Sao_Paulo"
 echo "Firewall configurado para SIEM/EDR (Wazuh)"
 echo "Hardening de kernel aplicado"
 echo ""
