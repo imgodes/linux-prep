@@ -9,34 +9,18 @@ install_package() {
     fi
 }
 
-# Configuração NTP
+# Configuração NTP com servidores públicos
 configure_ntp() {
-    if [ "$1" == "master" ]; then
-        echo "Configurando como NTP Master..."
-        install_package chrony
-        
-        cat > /etc/chrony/chrony.conf <<EOF
+    echo "Configurando NTP com servidores públicos..."
+    install_package chrony
+    
+    cat > /etc/chrony/chrony.conf <<EOF
+# Servidores NTP públicos brasileiros
 server a.ntp.br iburst
 server b.ntp.br iburst
 server c.ntp.br iburst
-pool 127.127.1.0
-allow 0/0
-local stratum 10
-keyfile /etc/chrony/chrony.keys
-driftfile /var/lib/chrony/chrony.drift
-logdir /var/log/chrony
-maxupdateskew 100.0
-hwclockfile /etc/adjtime
-rtcsync
-makestep 1 3
-EOF
 
-    else
-        echo "Configurando como NTP Client apontando para $2"
-        install_package chrony
-        
-        cat > /etc/chrony/chrony.conf <<EOF
-server $2 iburst
+# Configurações básicas
 keyfile /etc/chrony/chrony.keys
 driftfile /var/lib/chrony/chrony.drift
 logdir /var/log/chrony
@@ -45,10 +29,11 @@ hwclockfile /etc/adjtime
 rtcsync
 makestep 1 3
 EOF
-    fi
 
     systemctl restart chrony
+    echo "Servidores NTP configurados:"
     chronyc sources
+    echo "Status de sincronização:"
     chronyc tracking
 }
 
@@ -56,7 +41,6 @@ EOF
 configure_kernel_hardening() {
     echo "Aplicando hardening de kernel e rede..."
 
-    # Configurações do sysctl
     cat > /etc/sysctl.d/99-hardening.conf <<EOF
 # Prevenção contra spoofing e hardening de rede
 kernel.randomize_va_space = 2
@@ -105,36 +89,22 @@ kernel.perf_event_paranoid = 3
 kernel.module.sig_enforce = 1
 EOF
 
-    # Aplicar configurações imediatamente
     sysctl -p /etc/sysctl.d/99-hardening.conf
-
-    echo "Hardening de kernel aplicado com sucesso!"
 }
-
-# Instalação do UFW
-install_package ufw 
 
 # Configuração do UFW para SIEM/EDR
 configure_firewall() {
-    echo "Configurando UFW para servidor"
+    echo "Configurando UFW para servidor SIEM/EDR..."
     
-    # Resetar todas as regras
     ufw --force reset
-    
-    # Políticas padrão
     ufw default deny incoming
     ufw default allow outgoing
-    
-    # Liberar loopback
     ufw allow from 127.0.0.1
-    
-    # Liberar porta SSH customizada
     ufw allow $1/tcp
-    
-    # Liberar HTTPS se necessário
+    ufw allow 1514/udp   # Wazuh agent communication
+    ufw allow 1515/tcp   # Wazuh manager cluster
+    ufw allow 55000/tcp  # Wazuh DB daemon
     ufw allow https
-    
-    # Habilitar UFW
     ufw --force enable
     
     echo "Status do UFW:"
@@ -142,11 +112,6 @@ configure_firewall() {
 }
 
 # Coleta de informações
-read -p "Este servidor será NTP Master? (s/n): " IS_MASTER
-if [ "$IS_MASTER" != "s" ]; then
-    read -p "Informe o IP do NTP Master: " NTP_MASTER_IP
-fi
-
 read -p "Usuário: " USER
 read -sp "Senha: " PASSWORD
 echo
@@ -181,11 +146,7 @@ sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd
 sed -i 's/^PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 
 # Configuração NTP
-if [ "$IS_MASTER" == "s" ]; then
-    configure_ntp "master"
-else
-    configure_ntp "client" "$NTP_MASTER_IP"
-fi
+configure_ntp
 
 # Hardening de Kernel
 configure_kernel_hardening
@@ -206,7 +167,7 @@ echo "Usuário: $USER"
 echo "Porta SSH: $PORT"
 echo "Acesso root via SSH: DESATIVADO"
 echo "Autenticação por senha: DESATIVADA"
-echo "NTP configurado como: $([ "$IS_MASTER" == "s" ] && echo "MASTER" || echo "CLIENT para $NTP_MASTER_IP")"
+echo "NTP configurado com servidores públicos"
 echo "Firewall configurado para SIEM/EDR (Wazuh)"
 echo "Hardening de kernel aplicado"
 echo ""
